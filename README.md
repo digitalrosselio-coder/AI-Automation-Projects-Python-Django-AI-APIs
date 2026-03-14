@@ -7,8 +7,11 @@ Portfolio of backend systems, automation workflows, and AI-powered applications 
 [![Live](https://img.shields.io/badge/Live-rosseliodigital.online-brightgreen)](https://rosseliodigital.online)
 [![Stack](https://img.shields.io/badge/Stack-Django%20%7C%20MongoDB%20%7C%20Docker-blue)]()
 [![AI](https://img.shields.io/badge/AI-Claude%20Haiku%20%7C%20Llama%203.2-purple)]()
-[![Uptime](https://img.shields.io/badge/Uptime-Monitored%2024%2F7-success)]()
 
+## Screenshots
+
+### Uptime Kuma — Live Monitoring
+![Uptime Kuma](screenshots/kuma_dashboard.png)
 ---
 
 ## The Problem
