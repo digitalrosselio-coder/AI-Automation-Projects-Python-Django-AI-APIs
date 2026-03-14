@@ -239,4 +239,4 @@ Built, deployed, and maintained by **Rosselio M. Andres** — Python/Django deve
 
 - Portfolio: [rosseliodigital.online](https://rosseliodigital.online)
 - GitHub: [github.com/digitalrosselio-coder](https://github.com/digitalrosselio-coder)
-- Email: contact@rosseliodigital.online
+
