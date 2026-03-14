@@ -11,7 +11,7 @@ Portfolio of backend systems, automation workflows, and AI-powered applications 
 ## Screenshots
 
 ### Uptime Kuma — Live Monitoring
-![Uptime Kuma](screenshots/kuma_dashboard.png)
+![Uptime Kuma](screenshots/kuma dashboard.png)
 ---
 
 ## The Problem
