@@ -10,8 +10,25 @@ Portfolio of backend systems, automation workflows, and AI-powered applications 
 
 ## Screenshots
 
-### Uptime Kuma — Live Monitoring
-![Uptime Kuma](screenshots/kuma dashboard.png)
+### Uptime Kuma — Live Monitoring Dashboard
+![Uptime Kuma](screenshots/kuma_dashboard.png)
+
+### Docker Containers — All 6 Running in Production
+![Docker](screenshots/docker_ps.png)
+
+### Daily Digest — 8AM Operator Intelligence
+![Daily Digest](screenshots/daily_digest.png)
+
+### Telegram Alert — New Lead Captured
+![Telegram Alert](screenshots/telegram_alert_lead.png)
+
+### Telegram Bot — Live Interaction
+![Telegram 1](screenshots/telegram1.jpg)
+![Telegram 2](screenshots/telegram2.jpg)
+
+### Website — Live Demo
+![Website 1](screenshots/website1.jpg)
+![Website 2](screenshots/website2.jpg)
 ---
 
 ## The Problem
