@@ -11,6 +11,9 @@ Portfolio of backend systems, automation workflows, and AI-powered applications 
 
 ## Live Agent Flow Diagram
 [View Interactive Diagram →](https://digitalrosselio-coder.github.io/AI-Automation-Projects-Python-Django-AI-APIs/agent-flow.html)
+
+[View N8N Workflow →](https://rosseliodigital.app.n8n.cloud/workflow/TZ3IvBe3xnPojcND)
+
 ## Screenshots
 
 ### Uptime Kuma — Live Monitoring Dashboard
