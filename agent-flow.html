@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent Flow — Rosselio M. Andres</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.15);
+    --text: #e8e6f0;
+    --muted: #7a7890;
+    --purple: #8b7cf8;
+    --purple-dim: rgba(139,124,248,0.15);
+    --teal: #2dd4a0;
+    --teal-dim: rgba(45,212,160,0.12);
+    --amber: #f0a429;
+    --amber-dim: rgba(240,164,41,0.12);
+    --blue: #4a9eff;
+    --blue-dim: rgba(74,158,255,0.12);
+    --coral: #ff6b6b;
+    --coral-dim: rgba(255,107,107,0.12);
+    --green: #5dd67a;
+    --green-dim: rgba(93,214,122,0.12);
+    --gray-dim: rgba(255,255,255,0.05);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(139,124,248,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139,124,248,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--purple-dim);
+    border: 1px solid rgba(139,124,248,0.3);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--purple);
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  .badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--purple);
+    border-radius: 50%;
+    animation: pulse 2s ease infinite;
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+
+  h1 span { color: var(--purple); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 400;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  /* Flow diagram */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  /* Section labels */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    align-self: flex-start;
+    padding-left: 4px;
+  }
+
+  /* Trigger row */
+  .trigger-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 0;
+    opacity: 0;
+    animation: fadeUp 0.5s ease 0.1s forwards;
+  }
+
+  .trigger-node {
+    background: var(--gray-dim);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 10px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    transition: all 0.2s ease;
+    cursor: default;
+  }
+
+  .trigger-node:hover {
+    border-color: var(--border2);
+    color: var(--text);
+    background: rgba(255,255,255,0.07);
+  }
+
+  /* Connector */
+  .connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    width: 2px;
+    height: 32px;
+    background: linear-gradient(to bottom, var(--border2), var(--purple));
+    position: relative;
+    margin: 4px 0;
+  }
+
+  .connector::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid var(--purple);
+  }
+
+  .connector.wide {
+    width: 100%;
+    height: auto;
+    background: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+    position: relative;
+  }
+
+  .connector.wide::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border2), var(--border2), transparent);
+  }
+
+  /* Main nodes */
+  .node {
+    width: 100%;
+    border-radius: 12px;
+    padding: 18px 24px;
+    border: 1px solid var(--border);
+    position: relative;
+    transition: all 0.25s ease;
+    cursor: default;
+    opacity: 0;
+  }
+
+  .node:hover {
+    transform: translateY(-2px);
+    border-color: var(--border2);
+  }
+
+  .node.purple {
+    background: var(--purple-dim);
+    border-color: rgba(139,124,248,0.25);
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .node.purple:hover { border-color: var(--purple); box-shadow: 0 0 24px rgba(139,124,248,0.15); }
+
+  .node.teal {
+    background: var(--teal-dim);
+    border-color: rgba(45,212,160,0.25);
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .node.teal:hover { border-color: var(--teal); box-shadow: 0 0 24px rgba(45,212,160,0.12); }
+
+  .node.amber {
+    background: var(--amber-dim);
+    border-color: rgba(240,164,41,0.25);
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .node.amber:hover { border-color: var(--amber); box-shadow: 0 0 24px rgba(240,164,41,0.12); }
+
+  .node.blue {
+    background: var(--blue-dim);
+    border-color: rgba(74,158,255,0.25);
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .node.blue:hover { border-color: var(--blue); box-shadow: 0 0 24px rgba(74,158,255,0.12); }
+
+  .node.green {
+    background: var(--green-dim);
+    border-color: rgba(93,214,122,0.25);
+    animation: fadeUp 0.5s ease forwards;
+  }
+  .node.green:hover { border-color: var(--green); box-shadow: 0 0 24px rgba(93,214,122,0.12); }
+
+  .node-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 4px;
+  }
+  .node.purple .node-title { color: var(--purple); }
+  .node.teal .node-title { color: var(--teal); }
+  .node.amber .node-title { color: var(--amber); }
+  .node.blue .node-title { color: var(--blue); }
+  .node.green .node-title { color: var(--green); }
+
+  .node-sub {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+
+  .node-tag {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .node.purple .node-tag { background: rgba(139,124,248,0.2); color: var(--purple); }
+  .node.teal .node-tag { background: rgba(45,212,160,0.2); color: var(--teal); }
+  .node.amber .node-tag { background: rgba(240,164,41,0.2); color: var(--amber); }
+  .node.blue .node-tag { background: rgba(74,158,255,0.2); color: var(--blue); }
+  .node.green .node-tag { background: rgba(93,214,122,0.2); color: var(--green); }
+
+  /* Action row */
+  .action-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+    opacity: 0;
+  }
+
+  .action-node {
+    border-radius: 10px;
+    padding: 14px 12px;
+    border: 1px solid var(--border);
+    text-align: center;
+    transition: all 0.2s ease;
+    cursor: default;
+  }
+
+  .action-node:hover { transform: translateY(-2px); }
+
+  .action-node.teal { background: var(--teal-dim); border-color: rgba(45,212,160,0.2); }
+  .action-node.teal:hover { border-color: var(--teal); }
+  .action-node.amber { background: var(--amber-dim); border-color: rgba(240,164,41,0.2); }
+  .action-node.amber:hover { border-color: var(--amber); }
+  .action-node.blue { background: var(--blue-dim); border-color: rgba(74,158,255,0.2); }
+  .action-node.blue:hover { border-color: var(--blue); }
+  .action-node.coral { background: var(--coral-dim); border-color: rgba(255,107,107,0.2); }
+  .action-node.coral:hover { border-color: var(--coral); }
+
+  .action-title {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .action-node.teal .action-title { color: var(--teal); }
+  .action-node.amber .action-title { color: var(--amber); }
+  .action-node.blue .action-title { color: var(--blue); }
+  .action-node.coral .action-title { color: #ff6b6b; }
+
+  .action-sub {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Fallback chain indicator */
+  .fallback {
+    position: absolute;
+    right: -170px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg3);
+    border: 1px dashed var(--border2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .fallback::before {
+    content: '';
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 1px;
+    background: var(--border2);
+    border-top: 1px dashed var(--border2);
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 56px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    opacity: 0;
+    animation: fadeUp 0.5s ease 1.2s forwards;
+  }
+
+  .footer-left { font-size: 13px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .footer-left strong { color: var(--text); }
+
+  .footer-links { display: flex; gap: 16px; }
+  .footer-links a {
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1px;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--purple); border-color: var(--purple); }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+    padding: 16px 20px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    opacity: 0;
+    animation: fadeUp 0.5s ease 1.1s forwards;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Staggered node animations */
+  .node:nth-child(1) { animation-delay: 0.2s; }
+  .node:nth-child(2) { animation-delay: 0.35s; }
+  .node:nth-child(3) { animation-delay: 0.5s; }
+  .node:nth-child(4) { animation-delay: 0.65s; }
+  .node:nth-child(5) { animation-delay: 0.8s; }
+  .node:nth-child(6) { animation-delay: 0.95s; }
+
+  .action-row { animation: fadeUp 0.5s ease 0.85s forwards; }
+  .trigger-row { animation-delay: 0s; animation-fill-mode: forwards; }
+
+  .arrow-down {
+    width: 1px;
+    height: 28px;
+    background: linear-gradient(to bottom, rgba(139,124,248,0.4), rgba(139,124,248,0.8));
+    position: relative;
+    margin: 2px 0;
+  }
+  .arrow-down::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid rgba(139,124,248,0.8);
+  }
+
+  .fan-lines {
+    width: 100%;
+    height: 28px;
+    position: relative;
+    margin: 2px 0;
+  }
+  .fan-lines::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 1px; height: 14px;
+    background: rgba(139,124,248,0.5);
+  }
+  .fan-lines::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 15%; right: 15%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(139,124,248,0.3) 20%, rgba(139,124,248,0.3) 80%, transparent);
+  }
+
+  .converge-lines {
+    width: 100%;
+    height: 28px;
+    position: relative;
+    margin: 2px 0;
+  }
+  .converge-lines::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 15%; right: 15%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(74,158,255,0.3) 20%, rgba(74,158,255,0.3) 80%, transparent);
+  }
+  .converge-lines::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 1px; height: 14px;
+    background: rgba(74,158,255,0.5);
+  }
+
+  @media (max-width: 640px) {
+    .trigger-row { grid-template-columns: repeat(2, 1fr); }
+    .action-row { grid-template-columns: repeat(2, 1fr); }
+    .fallback { display: none; }
+    .footer { flex-direction: column; gap: 16px; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="badge">live system — production deployed</div>
+    <h1>AI Agent Flow<br><span>Automation Architecture</span></h1>
+    <p class="subtitle">rosselio m. andres — python/django + ai automation</p>
+  </div>
+
+  <div class="flow">
+
+    <!-- TRIGGERS -->
+    <div class="section-label">01 — trigger sources</div>
+    <div class="trigger-row">
+      <div class="trigger-node">Telegram bot</div>
+      <div class="trigger-node">Chat widget</div>
+      <div class="trigger-node">Webhook / API</div>
+      <div class="trigger-node">Excel import</div>
+    </div>
+
+    <div class="arrow-down"></div>
+
+    <!-- INTAKE -->
+    <div class="node teal" style="animation-delay:0.2s">
+      <span class="node-tag">validation</span>
+      <div class="node-title">Intake + structured data validation</div>
+      <div class="node-sub">parse → deduplicate → validate fields → reject malformed</div>
+    </div>
+
+    <div class="arrow-down"></div>
+
+    <!-- AI CLASSIFIER -->
+    <div class="node purple" style="animation-delay:0.35s; position:relative;">
+      <span class="node-tag">AI layer</span>
+      <div class="node-title">Claude AI classifier</div>
+      <div class="node-sub">intent detection · lead scoring · niche assignment · spam filter</div>
+      <div class="fallback">
+        fallback chain<br>
+        OpenRouter → Ollama
+      </div>
+    </div>
+
+    <div class="arrow-down"></div>
+
+    <!-- ROUTER -->
+    <div class="node purple" style="animation-delay:0.5s;">
+      <span class="node-tag">rule-based</span>
+      <div class="node-title">Rule-based router</div>
+      <div class="node-sub">match niche → job_hunt / general_va / warm_outreach / inquiry / spam</div>
+    </div>
+
+    <div class="fan-lines"></div>
+
+    <!-- ACTIONS -->
+    <div class="section-label">02 — parallel actions</div>
+    <div class="action-row">
+      <div class="action-node teal">
+        <div class="action-title">Email sequence</div>
+        <div class="action-sub">Day 0–10 nurture</div>
+      </div>
+      <div class="action-node amber">
+        <div class="action-title">Telegram alert</div>
+        <div class="action-sub">Operator notified</div>
+      </div>
+      <div class="action-node blue">
+        <div class="action-title">CRM update</div>
+        <div class="action-sub">Zoho / GHL sync</div>
+      </div>
+      <div class="action-node coral">
+        <div class="action-title">Content draft</div>
+        <div class="action-sub">LinkedIn post gen</div>
+      </div>
+    </div>
+
+    <div class="converge-lines"></div>
+
+    <!-- STORAGE -->
+    <div class="node blue" style="animation-delay:0.8s;">
+      <span class="node-tag">storage</span>
+      <div class="node-title">MongoDB — lead + event storage</div>
+      <div class="node-sub">track sequence day · status · conversation history · email logs</div>
+    </div>
+
+    <div class="arrow-down"></div>
+
+    <!-- MONITORING -->
+    <div class="node green" style="animation-delay:0.95s;">
+      <span class="node-tag">infrastructure</span>
+      <div class="node-title">Monitoring + auto-failover</div>
+      <div class="node-sub">uptime kuma · wsl failover (43min tested) · telegram alerts · daily digest</div>
+    </div>
+
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#2dd4a0"></div>automation / processing</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#8b7cf8"></div>AI routing layer</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f0a429"></div>notifications</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#4a9eff"></div>storage / CRM</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#5dd67a"></div>infrastructure</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ff6b6b"></div>content generation</div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-left">
+      built by <strong>Rosselio M. Andres</strong> — solo, production, live
+    </div>
+    <div class="footer-links">
+      <a href="https://rosseliodigital.online" target="_blank">rosseliodigital.online</a>
+      <a href="https://github.com/digitalrosselio-coder/AI-Automation-Projects-Python-Django-AI-APIs" target="_blank">github repo</a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
