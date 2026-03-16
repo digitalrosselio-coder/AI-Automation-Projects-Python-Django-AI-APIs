@@ -8,6 +8,9 @@ Portfolio of backend systems, automation workflows, and AI-powered applications 
 [![Stack](https://img.shields.io/badge/Stack-Django%20%7C%20MongoDB%20%7C%20Docker-blue)]()
 [![AI](https://img.shields.io/badge/AI-Claude%20Haiku%20%7C%20Llama%203.2-purple)]()
 
+
+## Live Agent Flow Diagram
+[View Interactive Diagram →](https://digitalrosselio-coder.github.io/AI-Automation-Projects-Python-Django-AI-APIs/agent-flow.html)
 ## Screenshots
 
 ### Uptime Kuma — Live Monitoring Dashboard
